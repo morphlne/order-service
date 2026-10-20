@@ -1,0 +1,17 @@
+services:
+  order-db:
+    build: db
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_PASSWORD: password
+  order-service:
+    build: app
+    depends_on:
+      - order-db
+    ports:
+      - 8000:8000
+    environment:
+      DATABASE_URL: postgresql://postgres:password@order-db:5432/orderdb

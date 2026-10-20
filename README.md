@@ -2,14 +2,37 @@
 
 ### How to run
 
+#### Docker compose
+
+```
+docker-compose up --build
+```
+
+#### Docker 
+
+Create network
+
+```
+docker network create order-network
+```
+
 Run db
 
 ```
 docker build -t order-db ./db/
-docker run --name order-db -e POSTGRES_PASSWORD=password -p 5432:5432 -d order-db
+docker run --name order-db --network order-network -e POSTGRES_PASSWORD=password -p 5432:5432 -d order-db
 ```
 
-Run service
+Run app
+
+```
+docker build -t order-service ./app/
+docker run --name order-service --network order-network -e DATABASE_URL=postgresql://postgres:password@order-db:5432/orderdb -p 8000:8000 -d order-service
+```
+
+#### Run app from source
+
+PostgreSQL must be running locally
 
 ```
 cd app
