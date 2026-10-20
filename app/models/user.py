@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.db import Base
@@ -9,6 +9,7 @@ class User(Base):
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name = Column(String)
     email = Column(String, unique=True)
+    is_active = Column(Boolean, default=True)
     orders: Mapped[list[Order]] = relationship()
 
     def __init__(self, name, email):

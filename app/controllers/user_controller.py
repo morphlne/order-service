@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from schemas.user import UserBase
+from schemas.user import UserBase, UserActive
 from config.db import get_db
 import services.user_service as users
 
@@ -23,6 +23,6 @@ def create_user(user: UserBase, db: Session = Depends(get_db)):
 def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_db)):
     return users.update_user(user_id, updated_user, db)
 
-@router.delete("/users/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    return users.delete_user(user_id, db)
+@router.patch("/users/{user_id}")
+def make_user_inactive(user_id: int, user: UserActive, db: Session = Depends(get_db)):
+    return users.make_user_inactive(user_id, user, db)
