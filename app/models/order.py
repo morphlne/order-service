@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from config.db import Base
 
+
 class Order(Base):
     __tablename__ = "orders"
     order_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

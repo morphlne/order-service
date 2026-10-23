@@ -1,14 +1,14 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
 
-from models.user import User
-from schemas.user import UserBase, UserActive
 from repositories.user_repository import *
+from schemas.user import UserActive
 
 emails = set()
 
+
 def get_all_users(db: Session):
     return get_all(db)
+
 
 def get_user(user_id: int, db: Session):
     user = get_by_id(user_id, db)
@@ -16,12 +16,14 @@ def get_user(user_id: int, db: Session):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+
 def create_user(user: UserBase, db: Session):
     if user.email in emails:
         raise HTTPException(status_code=400, detail="User with email already exists " + user.email)
     emails.add(user.email)
     saved = save_user(user, db)
     return {"message": "User created", "user": saved}
+
 
 def update_user(user_id: int, updated_user: UserBase, db: Session):
     user_db = get_user(user_id, db)
@@ -33,9 +35,10 @@ def update_user(user_id: int, updated_user: UserBase, db: Session):
     emails.add(updated_user.email)
     return {"message": "User updated", "user": updated_user}
 
+
 def make_user_inactive(user_id: int, user: UserActive, db: Session):
     if user.is_active:
-         raise HTTPException(status_code=400, detail="User activation is not supported")
+        raise HTTPException(status_code=400, detail="User activation is not supported")
     user_db = get_user(user_id, db)
     inactive = make_inactive(user_db, db)
     return {"message": "User inactive", "user": inactive}

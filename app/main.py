@@ -7,9 +7,9 @@ app = FastAPI()
 
 app.include_router(
     user_router,
-    tags = ["Users"]
+    tags=["Users"]
 )
 app.include_router(
     order_router,
-    tags = ["Orders"]
+    tags=["Orders"]
 )

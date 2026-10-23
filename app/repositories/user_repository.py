@@ -3,11 +3,14 @@ from sqlalchemy.orm import Session
 from models.user import User
 from schemas.user import UserBase
 
+
 def get_all(db: Session):
     return db.query(User).filter(User.is_active).all()
 
+
 def get_by_id(user_id: int, db: Session):
     return db.query(User).filter(User.user_id == user_id).filter(User.is_active).first()
+
 
 def save_user(user: UserBase, db: Session):
     user_db = User(user.name, user.email)
@@ -16,12 +19,14 @@ def save_user(user: UserBase, db: Session):
     db.refresh(user_db)
     return user_db
 
+
 def update(user_db: User, user: UserBase, db: Session):
     user_db.name = user.name
     user_db.email = user.email
     db.commit()
     db.refresh(user_db)
     return user_db
+
 
 def make_inactive(user: User, db: Session):
     user.is_active = False
