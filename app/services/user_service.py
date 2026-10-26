@@ -6,8 +6,16 @@ from schemas.user import UserActive
 emails = set()
 
 
+def update_emails(db: Session):
+    users = get_all(db)
+    for user in users:
+        emails.add(user.email)
+    print("Emails updated: " + ', '.join(emails))
+
+
 def get_all_users(db: Session):
-    return get_all(db)
+    users = get_all(db)
+    return [user for user in users if user.is_active]
 
 
 def get_user(user_id: int, db: Session):

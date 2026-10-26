@@ -5,7 +5,7 @@ from schemas.user import UserBase
 
 
 def get_all(db: Session):
-    return db.query(User).filter(User.is_active).all()
+    return db.query(User).all()
 
 
 def get_by_id(user_id: int, db: Session):
