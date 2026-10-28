@@ -2,3 +2,5 @@ fastapi
 uvicorn
 sqlalchemy
 psycopg[binary]
+pytest
+httpx2

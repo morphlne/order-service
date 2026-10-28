@@ -9,7 +9,7 @@ def get_all(db: Session):
 
 
 def get_by_id(user_id: int, db: Session):
-    return db.query(User).filter(User.user_id == user_id).filter(User.is_active).first()
+    return db.query(User).filter(User.user_id == user_id).first()
 
 
 def save_user(user: UserBase, db: Session):

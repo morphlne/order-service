@@ -20,7 +20,7 @@ def get_all_users(db: Session):
 
 def get_user(user_id: int, db: Session):
     user = get_by_id(user_id, db)
-    if not user:
+    if not user or not user.is_active:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
