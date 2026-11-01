@@ -1,4 +1,19 @@
+import pytest
+
 from models.user import User
+
+EMAIL_WITH_WHITESPACE = pytest.mark.parametrize(
+    "email",
+    [" john@example.com", "john@example.com "],
+    ids=["email_starting_whitespace", "email_ending_whitespace"]
+)
+
+INVALID_EMAIL = pytest.mark.parametrize(
+    "email",
+    ["", "name@", "name@domain.", "@domain.com", "namedomain.com", "na me@domain.com"],
+    ids=["empty_email", "email_no_domain", "email_no_top_lvl_domain",
+         "email_no_local_part", "email_no_@", "email_with_space"]
+)
 
 
 def test_get_users_filter_inactive(client, mock_db):
@@ -58,15 +73,16 @@ def test_get_user_filter_inactive(client, mock_db):
     mock_db.query.return_value.filter.return_value.first.assert_called_once()
 
 
-def test_create_user_success(client, mock_db):
-    request = {"name": "John Doe", "email": "john@example.com"}
+@EMAIL_WITH_WHITESPACE
+def test_create_user_success_strip_email(client, mock_db, email):
+    request = {"name": "John Doe", "email": email}
 
     response = client.post("/users", json=request)
 
     response_data = response.json()
     assert response.status_code == 200
     assert response_data["message"] == "User created"
-    assert response_data["user"]["name"] == "John Doe"
+    assert response_data["user"]["email"] == email.strip()
 
     created_user = mock_db.add.call_args[0][0]
     mock_db.add.assert_called_once()
@@ -102,8 +118,9 @@ def test_create_user_fail_name_validation(client, mock_db):
     mock_db.assert_not_called()
 
 
-def test_create_user_fail_email_validation(client, mock_db):
-    request = {"name": "John Doe", "email": ""}
+@INVALID_EMAIL
+def test_create_user_fail_email_validation(client, mock_db, email):
+    request = {"name": "John Doe", "email": email}
 
     response = client.post("/users", json=request)
 
@@ -112,10 +129,11 @@ def test_create_user_fail_email_validation(client, mock_db):
     mock_db.assert_not_called()
 
 
-def test_update_user_success(client, mock_db):
-    request = {"name": "John Doe", "email": "new_email@example.com"}
+@EMAIL_WITH_WHITESPACE
+def test_update_user_success_strip_email(client, mock_db, email):
+    request = {"name": "John Doe", "email": email}
 
-    db_user = User(name="John Doe", email="john@example.com")
+    db_user = User(name="John Doe", email="old@example.com")
     db_user.user_id = 1
     db_user.is_active = True
 
@@ -126,10 +144,21 @@ def test_update_user_success(client, mock_db):
     response_data = response.json()
     assert response.status_code == 200
     assert response_data["message"] == "User updated"
-    assert response_data["user"]["email"] == "new_email@example.com"
+    assert response_data["user"]["email"] == email.strip()
 
     mock_db.commit.assert_called_once()
     mock_db.refresh.assert_called_once()
+
+
+@INVALID_EMAIL
+def test_update_user_fail_email_validation(client, mock_db, email):
+    request = {"name": "John Doe", "email": email}
+
+    response = client.put("/users/1", json=request)
+
+    assert response.status_code == 422
+
+    mock_db.assert_not_called()
 
 
 def test_make_user_inactive_success(client, mock_db):
@@ -152,7 +181,7 @@ def test_make_user_inactive_success(client, mock_db):
     mock_db.refresh.assert_called_once()
 
 
-def test_make_user_inactive_fail_activation_not_supported(client, mock_db):
+def test_make_user_active_fail_not_supported(client, mock_db):
     request = {"is_active": "true"}
 
     response = client.patch("/users/1", json=request)

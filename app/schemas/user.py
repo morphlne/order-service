@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, EmailStr, StringConstraints
 
 
 class UserBase(BaseModel):
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-    email: Annotated[str, StringConstraints(strip_whitespace=True, min_length=6)]
+    email: EmailStr
 
 
 class UserActive(BaseModel):
