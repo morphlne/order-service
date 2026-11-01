@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette.routing import _DefaultLifespan
 
 from config.db import get_db
 from main import app
@@ -22,6 +23,7 @@ def client(mock_db):
             pass
 
     app.dependency_overrides[get_db] = override_get_db
+    app.router.lifespan_context = _DefaultLifespan
 
     with TestClient(app) as test_client:
         yield test_client
