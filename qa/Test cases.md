@@ -9,16 +9,12 @@ Functional `/users` API testing (GET, POST, PUT, PATCH):
 # Checklist
 
 * Verify creation of user with valid name/email address
-* Verify validation errors for invalid name/email on user creation
 * Verify retrieval of all active users
 * Verify retrieval of active user by id
-* Verify error for inactive/nonexistent user by id
 * Verify modification of a user's name/email with valid data
-* Verify validation errors for invalid name/email on user modification
-* Verify error on modification nonexistent/inactive user
+* Verify validation errors for user data during creation or modification
 * Verify deactivation of active user
-* Verify error on activation of inactive user
-* Verify error on activation/deactivation of nonexistent user
+* Verify errors for all operations on inactive or nonexistent user
 
 # Test Cases
 
@@ -109,9 +105,9 @@ Functional `/users` API testing (GET, POST, PUT, PATCH):
 
 ### TC-USR-07: Activate Inactive User
 
-* **Precondition:** User with `user_id = 1` and `is_active = false` persists in database
+* **Precondition:** User with `user_id = 2` and `is_active = false` persists in database
 * **Method / Endpoint:** `PATCH /users/{user_id}`
-* **Path Parameter:** `user_id = 1`
+* **Path Parameter:** `user_id = 2`
 * **Request Body:**
   ```json
   {
@@ -119,7 +115,7 @@ Functional `/users` API testing (GET, POST, PUT, PATCH):
   }
   ```
 * **Expected Response:** `400 Bad Request`
-* **Database Verification:** Keep `is_active = false` flag for the user with `user_id = 1`
+* **Database Verification:** Keep `is_active = false` flag for the user with `user_id = 2`
 
 ### TC-USR-08: Activate Unknown User
 
@@ -155,9 +151,9 @@ Functional `/users` API testing (GET, POST, PUT, PATCH):
 
 ### TC-USR-11: Get Single Inactive User by ID
 
-* **Precondition:** User with `user_id = 1` and `is_active = false` persists in database
+* **Precondition:** User with `user_id = 2` and `is_active = false` persists in database
 * **Method / Endpoint:** `GET /users/{user_id}`
-* **Path Parameter:** `user_id = 1`
+* **Path Parameter:** `user_id = 2`
 * **Request Body:** None
 * **Expected Response:** `404 Not Found`
 * **Database Verification:** No changes in database
@@ -237,9 +233,9 @@ Functional `/users` API testing (GET, POST, PUT, PATCH):
 
 ### TC-USR-17: Update Inactive User Information Profile
 
-* **Precondition:** User with `user_id = 1` and `is_active = false` persists in database
+* **Precondition:** User with `user_id = 2` and `is_active = false` persists in database
 * **Method / Endpoint:** `PUT /users/{user_id}`
-* **Path Parameter:** `user_id = 1`
+* **Path Parameter:** `user_id = 2`
 * **Request Body:**
   ```json
   {
