@@ -16,6 +16,11 @@ INVALID_EMAIL = pytest.mark.parametrize(
 )
 
 
+def mock_refresh_user(user):
+    user.user_id = 1
+    user.is_active = True
+
+
 def test_get_users_filter_inactive(client, mock_db):
     active_user = User(name="John Doe", email="john@example.com")
     active_user.user_id = 1
@@ -77,6 +82,8 @@ def test_get_user_filter_inactive(client, mock_db):
 def test_create_user_success_strip_email(client, mock_db, email):
     request = {"name": "John Doe", "email": email}
 
+    mock_db.refresh.side_effect = mock_refresh_user
+
     response = client.post("/users", json=request)
 
     response_data = response.json()
@@ -92,6 +99,8 @@ def test_create_user_success_strip_email(client, mock_db, email):
 
 def test_create_user_fail_same_email(client, mock_db):
     request = {"name": "John Doe", "email": "john@example.com"}
+
+    mock_db.refresh.side_effect = mock_refresh_user
 
     response = client.post("/users", json=request)
 

@@ -26,7 +26,7 @@ def update_order(order_id: int, updated_order: OrderBase, db: Session):
     if order_db.user_id != updated_order.user_id:
         get_user(updated_order.user_id, db)
     update(order_db, updated_order, db)
-    return {"message": "Order updated", "order": updated_order}
+    return {"message": "Order updated", "order": order_db}
 
 
 def delete_order(order_id: int, db: Session):

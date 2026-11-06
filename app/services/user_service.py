@@ -41,7 +41,7 @@ def update_user(user_id: int, updated_user: UserBase, db: Session):
         raise HTTPException(status_code=400, detail="User with email already exists " + updated_user.email)
     update(user_db, updated_user, db)
     emails.add(updated_user.email)
-    return {"message": "User updated", "user": updated_user}
+    return {"message": "User updated", "user": user_db}
 
 
 def make_user_inactive(user_id: int, user: UserActive, db: Session):
