@@ -7,11 +7,20 @@ services:
     environment:
       POSTGRES_DB: orderdb
       POSTGRES_PASSWORD: password
+
+  order-redis:
+    build: redis
+    restart: always
+    ports:
+      - 6379:6379
+
   order-service:
     build: app
     depends_on:
       - order-db
+      - order-redis
     ports:
       - 8000:8000
     environment:
       DATABASE_URL: postgresql://postgres:password@order-db:5432/orderdb
+      REDIS_URL: redis://redis:password@order-redis:6379/0

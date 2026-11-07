@@ -1,12 +1,23 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 from starlette.routing import _DefaultLifespan
 
 from config.db import get_db
+from config.redis import set_redis_client
 from main import app
-from services import user_service
+
+
+@pytest.fixture
+def mock_redis():
+    return AsyncMock()
+
+
+@pytest.fixture(autouse=True)
+def set_mock_redis(mock_redis):
+    set_redis_client(mock_redis)
+    yield mock_redis
 
 
 @pytest.fixture
@@ -29,9 +40,3 @@ def client(mock_db):
         yield test_client
 
     app.dependency_overrides.clear()
-
-
-@pytest.fixture(autouse=True)
-def clean_emails():
-    user_service.emails.clear()
-    yield

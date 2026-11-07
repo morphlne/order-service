@@ -79,7 +79,7 @@ def test_get_user_filter_inactive(client, mock_db):
 
 
 @EMAIL_WITH_WHITESPACE
-def test_create_user_success_strip_email(client, mock_db, email):
+def test_create_user_success_strip_email(client, mock_db, mock_redis, email):
     request = {"name": "John Doe", "email": email}
 
     mock_db.refresh.side_effect = mock_refresh_user
@@ -96,8 +96,11 @@ def test_create_user_success_strip_email(client, mock_db, email):
     mock_db.commit.assert_called_once()
     mock_db.refresh.assert_called_once_with(created_user)
 
+    mock_redis.smembers.assert_awaited_once_with("emails")
+    mock_redis.sadd.assert_awaited_once_with("emails", email.strip())
 
-def test_create_user_fail_same_email(client, mock_db):
+
+def test_create_user_fail_same_email(client, mock_db, mock_redis):
     request = {"name": "John Doe", "email": "john@example.com"}
 
     mock_db.refresh.side_effect = mock_refresh_user
@@ -107,6 +110,11 @@ def test_create_user_fail_same_email(client, mock_db):
     response_data = response.json()
     assert response.status_code == 200
     assert response_data["message"] == "User created"
+
+    mock_redis.smembers.assert_awaited_once_with("emails")
+    mock_redis.sadd.assert_awaited_once_with("emails", "john@example.com")
+
+    mock_redis.smembers.return_value = {"john@example.com"}
 
     request2 = {"name": "John WithSameEmail", "email": "john@example.com"}
 
@@ -139,10 +147,11 @@ def test_create_user_fail_email_validation(client, mock_db, email):
 
 
 @EMAIL_WITH_WHITESPACE
-def test_update_user_success_strip_email(client, mock_db, email):
+def test_update_user_success_strip_email(client, mock_db, mock_redis, email):
     request = {"name": "John Doe", "email": email}
 
-    db_user = User(name="John Doe", email="old@example.com")
+    old_email = "old@example.com"
+    db_user = User(name="John Doe", email=old_email)
     db_user.user_id = 1
     db_user.is_active = True
 
@@ -157,6 +166,10 @@ def test_update_user_success_strip_email(client, mock_db, email):
 
     mock_db.commit.assert_called_once()
     mock_db.refresh.assert_called_once()
+
+    mock_redis.smembers.assert_awaited_once_with("emails")
+    mock_redis.srem.assert_awaited_once_with("emails", old_email)
+    mock_redis.sadd.assert_awaited_once_with("emails", email.strip())
 
 
 @INVALID_EMAIL

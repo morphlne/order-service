@@ -5,3 +5,4 @@ psycopg[binary]
 pytest
 httpx2
 pydantic[email]
+fastapi-redis-sdk

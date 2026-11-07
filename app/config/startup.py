@@ -1,14 +1,18 @@
 from contextlib import asynccontextmanager
+from types import SimpleNamespace
 
 from fastapi import FastAPI
+from redis_fastapi import get_async_redis
+from redis_fastapi.deps import AsyncClient
 
-from config.db import SessionLocal
-from services.user_service import update_emails
+from config.redis import set_redis_client
+from services.email_cache_service import update_emails
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    with SessionLocal() as db:
-        update_emails(db)
+    redis: AsyncClient = await get_async_redis(SimpleNamespace(app=app))
+    set_redis_client(redis)
+    await update_emails()
 
     yield
