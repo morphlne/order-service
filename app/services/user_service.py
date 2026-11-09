@@ -27,7 +27,7 @@ def create_user(user: UserBase, db: Session):
 
 def update_user(user_id: int, updated_user: UserBase, db: Session):
     user_db = get_user(user_id, db)
-    if user_db.email is not updated_user.email:
+    if user_db.email != updated_user.email:
         if cache.contains(updated_user.email):
             raise HTTPException(status_code=400, detail="User with email already exists " + updated_user.email)
         old_email = user_db.email

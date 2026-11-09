@@ -172,6 +172,29 @@ def test_update_user_success_strip_email(client, mock_db, mock_redis, email):
     mock_redis.sadd.assert_awaited_once_with("emails", email.strip())
 
 
+def test_update_user_success_keep_email(client, mock_db, mock_redis):
+    request = {"name": "New John Doe", "email": "john@example.com"}
+
+    db_user = User(name="John Doe", email="john@example.com")
+    db_user.user_id = 1
+    db_user.is_active = True
+
+    mock_db.query.return_value.filter.return_value.first.return_value = db_user
+
+    response = client.put("/users/1", json=request)
+
+    response_data = response.json()
+    assert response.status_code == 200
+    assert response_data["message"] == "User updated"
+    assert response_data["user"]["name"] == "New John Doe"
+    assert response_data["user"]["email"] == "john@example.com"
+
+    mock_db.commit.assert_called_once()
+    mock_db.refresh.assert_called_once()
+
+    mock_redis.assert_not_called()
+
+
 @INVALID_EMAIL
 def test_update_user_fail_email_validation(client, mock_db, email):
     request = {"name": "John Doe", "email": email}
